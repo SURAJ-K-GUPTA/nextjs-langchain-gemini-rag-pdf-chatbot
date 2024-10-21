@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 interface ChatMessage {
   role: 'user' | 'bot';
@@ -15,6 +15,8 @@ export default function PDFMultiFileChatBot() {
   const [chat, setChat] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+
+  const chatWindowRef = useRef<HTMLDivElement>(null); // Reference to the chat window
 
   // Handle file selection (allow multiple file uploads)
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -75,6 +77,13 @@ export default function PDFMultiFileChatBot() {
     }
   };
 
+  // Auto-scroll the chat window when a new message is added
+  useEffect(() => {
+    if (chatWindowRef.current) {
+      chatWindowRef.current.scrollTop = chatWindowRef.current.scrollHeight;
+    }
+  }, [chat]); // This will run whenever the chat state updates
+
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Ask Questions About Multiple PDFs</h1>
@@ -108,7 +117,10 @@ export default function PDFMultiFileChatBot() {
         </div>
       )}
 
-      <div className="chat-window border rounded p-4 h-96 overflow-y-auto bg-gray-100 mb-4">
+      <div
+        ref={chatWindowRef}
+        className="chat-window border rounded p-4 h-96 overflow-y-auto bg-gray-100 mb-4 scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-gray-200"
+      >
         {chat.map((message, index) => (
           <div key={index} className={`mb-4 ${message.role === 'user' ? 'text-right' : 'text-left'}`}>
             <p className={`p-2 rounded inline-block ${message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}>
