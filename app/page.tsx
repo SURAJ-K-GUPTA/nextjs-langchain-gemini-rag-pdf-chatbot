@@ -9,25 +9,23 @@ interface ChatMessage {
 }
 
 export default function PDFMultiFileChatBot() {
-  const [files, setFiles] = useState<File[]>([]); // Track multiple files
-  const [selectedFile, setSelectedFile] = useState<string | null>(null); // Track selected file
+  const [files, setFiles] = useState<File[]>([]);
+  const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [question, setQuestion] = useState<string>('');
   const [chat, setChat] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const chatWindowRef = useRef<HTMLDivElement>(null); // Reference to the chat window
+  const chatWindowRef = useRef<HTMLDivElement>(null);
 
-  // Handle file selection (allow multiple file uploads)
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const uploadedFiles = e.target.files ? Array.from(e.target.files) : [];
     setFiles(uploadedFiles);
     setError(null);
-    setChat([]); // Reset chat for new file uploads
+    setChat([]);
     setSelectedFile(null);
   };
 
-  // Handle form submission (ask question)
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!selectedFile) {
@@ -47,9 +45,9 @@ export default function PDFMultiFileChatBot() {
       const file = files.find((f) => f.name === selectedFile);
 
       if (file) {
-        formData.append('file', file); // Send the file only if not already uploaded
+        formData.append('file', file);
       } else {
-        formData.append('fileName', selectedFile); // Send the file name to retrieve stored content
+        formData.append('fileName', selectedFile);
       }
 
       formData.append('question', question);
@@ -72,40 +70,43 @@ export default function PDFMultiFileChatBot() {
     } catch (err) {
       setError('An error occurred while uploading the PDF or processing the question.');
     } finally {
-      setQuestion(''); // Clear the input for the next question
+      setQuestion('');
       setLoading(false);
     }
   };
 
-  // Auto-scroll the chat window when a new message is added
   useEffect(() => {
     if (chatWindowRef.current) {
       chatWindowRef.current.scrollTop = chatWindowRef.current.scrollHeight;
     }
-  }, [chat]); // This will run whenever the chat state updates
+  }, [chat]);
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Ask Questions About Multiple PDFs</h1>
+    <div className="container mx-auto p-6 bg-red-50 shadow-lg rounded-lg">
+      <h1 className="text-3xl font-bold text-red-700 mb-4">PDF Chat Assistant</h1>
 
       <div className="mb-4">
-        <input
-          type="file"
-          accept="application/pdf"
-          multiple
-          onChange={handleFileChange}
-          className="block w-full text-sm text-gray-700"
-        />
+      <label htmlFor="file-upload" className="upload-button">
+          Choose PDF Files
+          <input
+            id="file-upload"
+            type="file"
+            accept="application/pdf"
+            multiple
+            onChange={handleFileChange}
+            className="hidden"
+          />
+        </label>
       </div>
 
       {files.length > 0 && (
         <div className="mb-4">
-          <label htmlFor="file-select" className="block text-sm font-medium text-gray-700">Select File:</label>
+          <label htmlFor="file-select" className="block text-lg font-medium text-red-700">Select File:</label>
           <select
             id="file-select"
             value={selectedFile || ''}
             onChange={(e) => setSelectedFile(e.target.value)}
-            className="block w-full p-2 border border-gray-300 rounded-md"
+            className="block w-full p-2 border border-red-300 rounded-md text-red-700"
           >
             <option value="" disabled>Select a file</option>
             {files.map((file) => (
@@ -119,11 +120,11 @@ export default function PDFMultiFileChatBot() {
 
       <div
         ref={chatWindowRef}
-        className="chat-window border rounded p-4 h-96 overflow-y-auto bg-gray-100 mb-4 scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-gray-200"
+        className="chat-window border rounded-lg p-4 h-96 overflow-y-auto bg-white mb-4 shadow-inner scrollbar-thin scrollbar-thumb-red-400 scrollbar-track-red-100"
       >
         {chat.map((message, index) => (
           <div key={index} className={`mb-4 ${message.role === 'user' ? 'text-right' : 'text-left'}`}>
-            <p className={`p-2 rounded inline-block ${message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}>
+            <p className={`p-2 rounded-lg inline-block ${message.role === 'user' ? 'bg-red-500 text-white' : 'bg-red-100 text-red-800'}`}>
               <strong>{message.fileName}:</strong> {message.content}
             </p>
           </div>
@@ -136,22 +137,22 @@ export default function PDFMultiFileChatBot() {
             type="text"
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
-            placeholder="Enter your question"
-            className="mt-1 p-2 block w-full border border-gray-300 rounded-md"
+            placeholder="Type your question here"
+            className="mt-1 p-2 block w-full border border-red-300 rounded-md focus:ring-red-500 focus:border-red-500"
             required
           />
         </div>
 
         <button
           type="submit"
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition ease-in-out"
           disabled={loading || !selectedFile}
         >
           {loading ? 'Processing...' : 'Ask Question'}
         </button>
       </form>
 
-      {error && <p className="mt-4 text-red-500">{error}</p>}
+      {error && <p className="mt-4 text-red-600">{error}</p>}
     </div>
   );
 }
