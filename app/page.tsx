@@ -138,7 +138,7 @@ export default function PDFMultiFileChatBot() {
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
             placeholder="Type your question here"
-            className="mt-1 p-2 block w-full border border-red-300 rounded-md focus:ring-red-500 focus:border-red-500"
+            className="focus:border-red dark:text-red-600 text-red-700 mt-1 p-2 block w-full border border-red-300 rounded-md focus:ring-red-500 focus:border-red-300 focus:outline-none focus:ring-0"
             required
           />
         </div>
