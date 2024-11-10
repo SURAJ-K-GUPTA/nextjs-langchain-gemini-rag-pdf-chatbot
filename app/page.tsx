@@ -18,6 +18,26 @@ export default function PDFMultiFileChatBot() {
 
   const chatWindowRef = useRef<HTMLDivElement>(null);
 
+  const formatBoldText = (text: string): JSX.Element[] => {
+    // Split the text by the bold markers
+    const parts = text.split(/(\*\*.*?\*\*)/g);
+  
+    return parts.map((part, index) => {
+      // Check if the part is bold
+      if (part.startsWith('**') && part.endsWith('**')) {
+        const boldText = part.slice(2, -2); // Remove the asterisks
+        return (
+          <strong key={index}>
+            {boldText}
+          </strong>
+        );
+      }
+      // Return non-bold parts as plain text
+      return <span key={index}>{part}</span>; // Wrap non-bold parts in a span for consistency
+    });
+  };
+  
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const uploadedFiles = e.target.files ? Array.from(e.target.files) : [];
     setFiles(uploadedFiles);
@@ -125,7 +145,7 @@ export default function PDFMultiFileChatBot() {
         {chat.map((message, index) => (
           <div key={index} className={`mb-4 ${message.role === 'user' ? 'text-right' : 'text-left'}`}>
             <p className={`p-2 rounded-lg inline-block ${message.role === 'user' ? 'bg-red-500 text-white' : 'bg-red-100 text-red-800'}`}>
-              <strong>{message.fileName}:</strong> {message.content}
+              <strong>{message.fileName}:</strong> {formatBoldText(message.content)}
             </p>
           </div>
         ))}
